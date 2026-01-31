@@ -183,15 +183,16 @@ Add to your MCP config:
 {
   "mcpServers": {
     "opensea": {
-      "command": "npx",
-      "args": ["-y", "@opensea/mcp-server"],
-      "env": {
-        "OPENSEA_MCP_TOKEN": "your-mcp-token"
+      "url": "https://mcp.opensea.io/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_MCP_TOKEN"
       }
     }
   }
 }
 ```
+
+Or use the inline token format: `https://mcp.opensea.io/YOUR_MCP_TOKEN/mcp`
 
 ### Token Swap Tools
 | MCP Tool | Purpose |
@@ -283,6 +284,42 @@ mcporter call opensea.get_token_balances --args '{
   "chains": ["base", "ethereum"]
 }'
 ```
+
+## Generating a wallet
+
+To execute swaps or buy NFTs, you need an Ethereum wallet (private key + address).
+
+### Using Node.js
+```javascript
+import crypto from 'crypto';
+import { privateKeyToAccount } from 'viem/accounts';
+
+const privateKey = '0x' + crypto.randomBytes(32).toString('hex');
+const account = privateKeyToAccount(privateKey);
+
+console.log('Private Key:', privateKey);
+console.log('Address:', account.address);
+```
+
+### Using OpenSSL
+```bash
+# Generate private key
+PRIVATE_KEY="0x$(openssl rand -hex 32)"
+echo "Private Key: $PRIVATE_KEY"
+
+# Derive address (requires node + viem)
+node --input-type=module -e "
+import { privateKeyToAccount } from 'viem/accounts';
+console.log('Address:', privateKeyToAccount('$PRIVATE_KEY').address);
+"
+```
+
+### Using cast (Foundry)
+```bash
+cast wallet new
+```
+
+**Important:** Store private keys securely. Never commit them to git or share publicly.
 
 ## Requirements
 
